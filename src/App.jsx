@@ -2,7 +2,8 @@ import { useState } from "react"
 import GameBoard from "./components/GameBoard.jsx"
 import Player from "./components/Player.jsx"
 import Log from "./components/Log.jsx";
-import { WINNING_COMBINATIONS } from './components/winning-combinations.js'
+import { WINNING_COMBINATIONS } from './winning-combinations.js'
+import GameOver from "./components/GameOver.jsx";
 
 const initialGameBoard = [
   [null, null, null],
@@ -23,7 +24,8 @@ function App() {
   const [gameTurns, setGameTurns] = useState([]);
   const activePlayer = deriveActivePlayer(gameTurns);
 
-  let gameBoard = initialGameBoard;
+  // perform deep copy otherwise gameboard will have reference of initialGameBoard and will keep updating it
+  let gameBoard = [...initialGameBoard.map(array => [...array])];
 
   for (let turn of gameTurns) {
       let {square, player} = turn;
@@ -33,6 +35,7 @@ function App() {
   }
 
   let winner;
+  let isDraw;
 
   for (const combination of WINNING_COMBINATIONS) {
     const firstSquareSymbol = gameBoard[combination[0].row][combination[0].column];
@@ -43,6 +46,8 @@ function App() {
       winner = firstSquareSymbol;
     }
   }
+
+  isDraw = gameTurns.length === 9 && !winner;
 
   function handleSelectSquare(rowIndex, colIndex) {
     setGameTurns((prevGameTurns) => {
@@ -55,6 +60,10 @@ function App() {
     });
   }
 
+  function handleRestart() {
+    setGameTurns([]);
+  }
+
   return (
     <main>
       <div id="game-container">
@@ -62,7 +71,7 @@ function App() {
           <Player initialName="Player 1" symbol="X" isActive={activePlayer === "X"}/>
           <Player initialName="Player 2" symbol="O" isActive={activePlayer === "O"}/>
         </ol>
-        {winner && <p>You Won, {winner}!</p>}
+        { (winner || isDraw) && <GameOver winner={winner} onRestart={handleRestart}/> }
         <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard}/>
       </div>
       <Log turns = {gameTurns}/>
