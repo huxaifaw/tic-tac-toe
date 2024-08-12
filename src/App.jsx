@@ -23,6 +23,12 @@ function App() {
   
   const [gameTurns, setGameTurns] = useState([]);
   const activePlayer = deriveActivePlayer(gameTurns);
+  const [players, setPlayers] = useState(
+    {
+      "X": "Player 1",
+      "O": "Player 2"
+    }
+  );
 
   // perform deep copy otherwise gameboard will have reference of initialGameBoard and will keep updating it
   let gameBoard = [...initialGameBoard.map(array => [...array])];
@@ -43,7 +49,7 @@ function App() {
     const thirdSquareSymbol = gameBoard[combination[2].row][combination[2].column];
 
     if (firstSquareSymbol && firstSquareSymbol===secondSquareSymbol && firstSquareSymbol===thirdSquareSymbol) {
-      winner = firstSquareSymbol;
+      winner = players[firstSquareSymbol];
     }
   }
 
@@ -64,12 +70,21 @@ function App() {
     setGameTurns([]);
   }
 
+  function handleNameChange(symbol, newName) {
+    setPlayers((prevPlayers) => {
+      return {
+        ...prevPlayers,
+        [symbol]: newName
+      }
+    });
+  }
+
   return (
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
-          <Player initialName="Player 1" symbol="X" isActive={activePlayer === "X"}/>
-          <Player initialName="Player 2" symbol="O" isActive={activePlayer === "O"}/>
+          <Player initialName="Player 1" symbol="X" isActive={activePlayer === "X"} onNameChange={handleNameChange}/>
+          <Player initialName="Player 2" symbol="O" isActive={activePlayer === "O"} onNameChange={handleNameChange}/>
         </ol>
         { (winner || isDraw) && <GameOver winner={winner} onRestart={handleRestart}/> }
         <GameBoard onSelectSquare={handleSelectSquare} board={gameBoard}/>
