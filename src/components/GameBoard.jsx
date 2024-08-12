@@ -1,4 +1,4 @@
-import { useState } from "react";
+// import { useState } from "react";
 
 const initialGameBoard = [
     [null, null, null],
@@ -6,21 +6,15 @@ const initialGameBoard = [
     [null, null, null]
 ]
 
-export default function GameBoard({onSelectSquare, activePlayerSymbol}) {
+export default function GameBoard({onSelectSquare, turns}) {
 
-    const [gameBoard, setGameBoard] = useState(initialGameBoard);
-    
-    function handleClick(rowIndex, colIndex) {
-        setGameBoard((prevGameBoard) => {
-            // create a new object since the reference of the old object will be used which will give inconsistency
-            const updatedBoard = [...prevGameBoard.map((innerArray)=> [...innerArray])]
-        
-            updatedBoard[rowIndex][colIndex] = activePlayerSymbol;
-        
-            return updatedBoard;
-        });
-        
-        onSelectSquare();
+    let gameBoard = initialGameBoard;
+
+    for (let turn of turns) {
+        let {square, player} = turn;
+        let {row, col} = square;
+
+        gameBoard[row][col] = player;
     }
 
     return (
@@ -28,7 +22,7 @@ export default function GameBoard({onSelectSquare, activePlayerSymbol}) {
             {gameBoard.map((row, rowIndex) => <li key={rowIndex}>
                 <ol>
                     {row.map((playerSymbol, colIndex) => <li key={colIndex}>
-                        <button onClick={()=>handleClick(rowIndex, colIndex)}>{playerSymbol}</button>
+                        <button onClick={() => onSelectSquare(rowIndex, colIndex)}>{playerSymbol}</button>
                     </li>)}
                 </ol>
             </li>)}
